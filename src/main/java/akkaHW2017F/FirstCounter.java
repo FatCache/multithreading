@@ -1,13 +1,9 @@
 package akkaHW2017F;
 
-import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import scala.concurrent.Await;
@@ -23,11 +19,6 @@ import scala.concurrent.duration.Duration;
  */
 public class FirstCounter extends UntypedActor {
 
-
-    public FirstCounter() {
-        // TODO Auto-generated constructor stub
-    }
-
     @Override
     public void onReceive(Object msg) throws Throwable {
         if (msg instanceof String) {
@@ -35,7 +26,7 @@ public class FirstCounter extends UntypedActor {
             if (msgList[0].equals(Messages.START)) {
                 String pt = computePt(msgList[1]); //the STRING...
                 String ct = "0.0";
-                Future<Object> f = Patterns.ask(getSender(), Messages.GET_CT+"&="+"Plzz no printo", 5000); // NEED CT
+                Future<Object> f = Patterns.ask(getSender(), Messages.GET_CT+"&=", 5000); // Get CT
 
                 try {
                     Timeout timeout = new Timeout(Duration.create(100, "seconds"));
@@ -45,13 +36,13 @@ public class FirstCounter extends UntypedActor {
                     e.printStackTrace();
                 }
 
-                System.out.println("Value of U(t) is " + computeUt(pt, ct));
-
+                System.out.println(getName()+"Value of U(t) is " + computeUt(pt, ct));
+                
                 // Send Feedback BACK to Estimator
                 String feedbackMessage = Messages.POST_FEEDBACK + "&=" + computeUt(pt, ct);
-                getSender().tell(feedbackMessage, getSelf()); //send back to Estimator
+                getSender().tell(feedbackMessage, getSelf()); //send FeedBack to Estimator
                 User.usNode.tell(Messages.RETURN_ERROR + "&=" + computeUt(pt,ct), getSelf()); // Tell User of U(t)
-                System.out.printf("%s Reaced the END....\n",getName());
+               
             } else {
                 throw new IllegalAccessException("No Match Found");
             }
@@ -68,42 +59,16 @@ public class FirstCounter extends UntypedActor {
     public String computePt(String in) {
         double vt = vowelCounter(in);
         double lt = letterCounter(in);
-        System.out.printf("%s v(t):%f l(t)%f\n",getName(),vt,lt);
+        System.out.printf("%s v(t):%f l(t)%f => %f\n",getName(),vt,lt,vt/lt);
         return Double.toString(vt / lt);
     }
 
-    public void businessLogic() {
-
-    }
-
     public int vowelCounter(String in) {
-        int count = 0;
-//        try {
-//            FileReader fr = new FileReader(System.getProperty("user.dir") + File.separator + "data" + File.separator + "Akka1.txt");
-//            BufferedReader br = new BufferedReader(fr);
-//            while (br.readLine() != null) {
-//                count += vowelCount(br.readLine());
-//            }
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
-
         return vowelCount(in);
 
     }
 
     public int letterCounter(final String in) {
-//        int count = 0;
-//        try {
-//            FileReader fr = new FileReader(System.getProperty("user.dir") + File.separator + "data" + File.separator + "Akka1.txt");
-//            BufferedReader br = new BufferedReader(fr);
-//            while (br.readLine() != null) {
-//                count += letterCount(br.readLine());
-//            }
-//
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
         return letterCount(in);
     }
 

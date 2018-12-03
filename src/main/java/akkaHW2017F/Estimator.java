@@ -15,15 +15,13 @@ import akka.actor.UntypedActor;
  */
 public class Estimator extends UntypedActor {
 
-    private final String workString;
-    private static double currentEstimator = 0.1;
-    private static double oldEstimator = 0.1;
-    private final double g = 0.30; 
+    private static double currentEstimator = 0.7;
+    private static double oldEstimator = 0.7;
+    private final double g =0.33; 
 
     public final static Object ctEstimatorLock = new Object();
 
-    public Estimator(String workString) {
-        this.workString = workString;
+    public Estimator() {
     }
 
     @Override

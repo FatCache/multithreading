@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.DoubleToLongFunction;
 
 /**
  * Main class for your estimation actor system.
@@ -23,7 +24,7 @@ public class User extends UntypedActor {
     public static ActorRef usNode;
 
     public static AtomicInteger nStep;
-    //public static AtomicLong sSum;
+    // public static AtomicLong sSumTest;
     public static double sSum;
 
     public static void main(String[] args) throws InterruptedException {
@@ -36,7 +37,7 @@ public class User extends UntypedActor {
 
         system = ActorSystem.create("EstimationSystem");
         nStep = new AtomicInteger(0);
-        //sSum = new AtomicLong(0L);
+//        sSumTest = new AtomicLong(0L);
         sSum = 0;
 
         Props userProps = Props.create(User.class);
@@ -55,18 +56,18 @@ public class User extends UntypedActor {
             String[] msgList = ((String) o).split("&=");
             if (msgList[0].equals(Messages.RETURN_ERROR)) {
                 double ut = Double.parseDouble(msgList[1]);
-                
+
                 int n = nStep.incrementAndGet();
-                //long s = (long) (sSum.get() + ut);
-                sSum +=ut; 
-                double error = (sSum / n)*100;
+                sSum += ut;
+
+                double error = (sSum / n) * 100;
                 // Print Current Error 
-                System.out.printf("%sCurrent Error at Time Step %d is %.2f%%\r\n",getName(), n, error);
+                System.out.printf("%sCurrent Error at Time Step %d is %.2f%%\r\n", getName(), n, error);
 //                System.out.println(getName()+"The current Error at Time Step "+n+" is "+error+"%");
-            } else if(msgList[0].equals(Messages.START)){
+            } else if (msgList[0].equals(Messages.START)) {
                 StringBuilder stringToSend = new StringBuilder();
                 try {
-                    for (int i = 1; i <=10; i++) {
+                    for (int i = 1; i <= 10; i++) {
                         FileReader fr = new FileReader(System.getProperty("user.dir") + File.separator + "data" + File.separator + "Akka" + i + ".txt");
                         BufferedReader br = new BufferedReader(fr);
                         while (br.readLine() != null) {
@@ -74,20 +75,18 @@ public class User extends UntypedActor {
                         }
 
                         // Send to Three Children for EACH file}
-                        Props Estimator1Prop = Props.create(Estimator.class, stringToSend.toString());
-                        Props Estimator2Prop = Props.create(Estimator.class, stringToSend.toString());
+                        Props Estimator1Prop = Props.create(Estimator.class);
+                        Props Estimator2Prop = Props.create(Estimator.class);
                         Props CounterProp = Props.create(FirstCounter.class);
-                        ActorRef e1Node = system.actorOf(Estimator1Prop, "Estimator_1_Node_File"+i);
-                        ActorRef e2Node = system.actorOf(Estimator2Prop, "Estimator_2_Node_File"+i);
-                        ActorRef cunNode = system.actorOf(CounterProp, "Count_Node_File"+i);
+                        ActorRef e1Node = system.actorOf(Estimator1Prop, "Estimator_1_Node_File" + i);
+                        ActorRef e2Node = system.actorOf(Estimator2Prop, "Estimator_2_Node_File" + i);
+                        ActorRef cunNode = system.actorOf(CounterProp, "Count_Node_File" + i);
                         // Send Payload
                         Thread.sleep(100);
                         cunNode.tell(Messages.START + "&=" + stringToSend.toString(), e1Node);
                         Thread.sleep(100);
                         cunNode.tell(Messages.START + "&=" + stringToSend.toString(), e2Node);
                         stringToSend.setLength(0);
-                        
-
                     }
 
                 } catch (IOException ex) {
@@ -97,8 +96,9 @@ public class User extends UntypedActor {
             }
         }
     }
-        private String getName(){
-        return getSelf().path().name()+">";
+
+    private String getName() {
+        return getSelf().path().name() + ">";
     }
 
 }
