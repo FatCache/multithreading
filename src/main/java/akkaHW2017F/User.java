@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Main class for your estimation actor system.
  *
- * @author akashnagesh
+ * @author abdusamed
  *
  */
 public class User extends UntypedActor {

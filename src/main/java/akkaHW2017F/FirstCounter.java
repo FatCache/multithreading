@@ -18,7 +18,7 @@ import scala.concurrent.duration.Duration;
  * this actor reads the file, counts the vowels and sends the result to
  * Estimator.
  *
- * @author akashnagesh
+ * @author abdusamed
  *
  */
 public class FirstCounter extends UntypedActor {

@@ -10,7 +10,7 @@ import akka.actor.UntypedActor;
  * {@code WordCountInAFileActor} depending upon the number of files in the given
  * directory structure
  *
- * @author akashnagesh
+ * @author abdusamed
  *
  */
 public class Estimator extends UntypedActor {
