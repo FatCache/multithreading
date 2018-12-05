@@ -1,16 +1,14 @@
 package akkaHW2017F;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.DoubleToLongFunction;
 
 /**
  * Main class for your estimation actor system.
@@ -18,13 +16,13 @@ import java.util.function.DoubleToLongFunction;
  * @author abdusamed
  *
  */
-public class User extends UntypedActor {
+public class User extends UntypedActor implements Message {
 
     public static ActorSystem system;
     public static ActorRef usNode;
 
     public static AtomicInteger nStep;
-    // public static AtomicLong sSumTest;
+    
     public static double sSum;
 
     public static void main(String[] args) throws InterruptedException {
@@ -37,12 +35,12 @@ public class User extends UntypedActor {
 
         system = ActorSystem.create("EstimationSystem");
         nStep = new AtomicInteger(0);
-//        sSumTest = new AtomicLong(0L);
+
         sSum = 0;
 
         Props userProps = Props.create(User.class);
         usNode = system.actorOf(userProps, "User_Node");
-        usNode.tell(Messages.START, usNode);
+        usNode.tell(START, usNode);
 
         Thread.sleep(10000);
         system.terminate();
@@ -54,7 +52,7 @@ public class User extends UntypedActor {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         if (o instanceof String) {
             String[] msgList = ((String) o).split("&=");
-            if (msgList[0].equals(Messages.RETURN_ERROR)) {
+            if (msgList[0].equals(RETURN_ERROR)) {
                 double ut = Double.parseDouble(msgList[1]);
 
                 int n = nStep.incrementAndGet();
@@ -63,8 +61,8 @@ public class User extends UntypedActor {
                 double error = (sSum / n) * 100;
                 // Print Current Error 
                 System.out.printf("%sCurrent Error at Time Step %d is %.2f%%\r\n", getName(), n, error);
-//                System.out.println(getName()+"The current Error at Time Step "+n+" is "+error+"%");
-            } else if (msgList[0].equals(Messages.START)) {
+
+            } else if (msgList[0].equals(START)) {
                 StringBuilder stringToSend = new StringBuilder();
                 try {
                     for (int i = 1; i <= 10; i++) {
@@ -74,7 +72,7 @@ public class User extends UntypedActor {
                             stringToSend.append(br.readLine());
                         }
 
-                        // Send to Three Children for EACH file}
+                        // Start Count;Estimator 1 & 2 Actor
                         Props Estimator1Prop = Props.create(Estimator.class);
                         Props Estimator2Prop = Props.create(Estimator.class);
                         Props CounterProp = Props.create(FirstCounter.class);
@@ -83,9 +81,9 @@ public class User extends UntypedActor {
                         ActorRef cunNode = system.actorOf(CounterProp, "Count_Node_File" + i);
                         // Send Payload
                         Thread.sleep(100);
-                        cunNode.tell(Messages.START + "&=" + stringToSend.toString(), e1Node);
+                        cunNode.tell(START + "&=" + stringToSend.toString(), e1Node);
                         Thread.sleep(100);
-                        cunNode.tell(Messages.START + "&=" + stringToSend.toString(), e2Node);
+                        cunNode.tell(START + "&=" + stringToSend.toString(), e2Node);
                         stringToSend.setLength(0);
                     }
 

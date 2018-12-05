@@ -1,7 +1,5 @@
 package akkaHW2017F;
 
-import java.io.File;
-
 import akka.actor.UntypedActor;
 
 /**
@@ -13,11 +11,11 @@ import akka.actor.UntypedActor;
  * @author abdusamed
  *
  */
-public class Estimator extends UntypedActor {
+public class Estimator extends UntypedActor implements Message {
 
     private static double currentEstimator = 0.7;
     private static double oldEstimator = 0.7;
-    private final double g =0.33; 
+    private final double g = 0.33; 
 
     public final static Object ctEstimatorLock = new Object();
 
@@ -28,10 +26,10 @@ public class Estimator extends UntypedActor {
     public void onReceive(Object msg) throws Throwable {
         if (msg instanceof String) {
             String[] msgList = ((String) msg).split("&=");
-            if (msgList[0].equals(Messages.POST_FEEDBACK)) {
+            if (msgList[0].equals(POST_FEEDBACK)) {
                 // Use feedback to adjust
                 setctEstimator(Double.parseDouble(msgList[1]));
-            } else if (msgList[0].equals(Messages.GET_CT)) {
+            } else if (msgList[0].equals(GET_CT)) {
                 getSender().tell(Double.toString(currentEstimator), getSelf());
             } else{
                 System.out.println(getName() + " No match Found in String");

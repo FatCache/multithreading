@@ -3,7 +3,6 @@ package akkaHW2017F;
 import akka.actor.UntypedActor;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import scala.concurrent.Await;
@@ -17,16 +16,16 @@ import scala.concurrent.duration.Duration;
  * @author abdusamed
  *
  */
-public class FirstCounter extends UntypedActor {
+public class FirstCounter extends UntypedActor implements Message {
 
     @Override
     public void onReceive(Object msg) throws Throwable {
         if (msg instanceof String) {
             String[] msgList = ((String) msg).split("&=");
-            if (msgList[0].equals(Messages.START)) {
-                String pt = computePt(msgList[1]); //the STRING...
+            if (msgList[0].equals(START)) {
+                final String pt = computePt(msgList[1]); //the STRING...
                 String ct = "0.0";
-                Future<Object> f = Patterns.ask(getSender(), Messages.GET_CT+"&=", 5000); // Get CT
+                Future<Object> f = Patterns.ask(getSender(), GET_CT + "&=", 5000); // Get CT
 
                 try {
                     Timeout timeout = new Timeout(Duration.create(100, "seconds"));
@@ -36,13 +35,13 @@ public class FirstCounter extends UntypedActor {
                     e.printStackTrace();
                 }
 
-                System.out.println(getName()+"Value of U(t) is " + computeUt(pt, ct));
-                
+                System.out.println(getName() + "Value of U(t) is " + computeUt(pt, ct));
+
                 // Send Feedback BACK to Estimator
-                String feedbackMessage = Messages.POST_FEEDBACK + "&=" + computeUt(pt, ct);
+                String feedbackMessage = POST_FEEDBACK + "&=" + computeUt(pt, ct);
                 getSender().tell(feedbackMessage, getSelf()); //send FeedBack to Estimator
-                User.usNode.tell(Messages.RETURN_ERROR + "&=" + computeUt(pt,ct), getSelf()); // Tell User of U(t)
-               
+                User.usNode.tell(RETURN_ERROR + "&=" + computeUt(pt, ct), getSelf()); // Tell User of U(t)
+
             } else {
                 throw new IllegalAccessException("No Match Found");
             }
@@ -51,34 +50,30 @@ public class FirstCounter extends UntypedActor {
 
     }
 
-    public String computeUt(String pt, String ct) {
-        double ut = Double.parseDouble(pt) - Double.parseDouble(ct);
+    private String computeUt(final String pt, final String ct) {
+        final double ut = Double.parseDouble(pt) - Double.parseDouble(ct);
         return Double.toString(ut);
     }
 
-    public String computePt(String in) {
+    private String computePt(final String in) {
         double vt = vowelCounter(in);
         double lt = letterCounter(in);
-        System.out.printf("%s v(t):%f l(t)%f => %f\n",getName(),vt,lt,vt/lt);
+        System.out.printf("%s v(t):%f l(t)%f => %f\n", getName(), vt, lt, vt / lt);
         return Double.toString(vt / lt);
     }
-
-    public int vowelCounter(String in) {
-        return vowelCount(in);
-
-    }
-
-    public int letterCounter(final String in) {
+    
+    private int letterCounter(final String in) {
         return letterCount(in);
     }
 
-    public int letterCount(final String in) {
+    private int letterCount(final String in) {
         String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         HashSet<Character> vs = new HashSet<>();
+        
         for (Character c : alpha.toCharArray()) {
             vs.add(c);
         }
-
+        
         int count = 0;
         for (char c : in.toUpperCase().toCharArray()) {
             if (vs.contains(c)) {
@@ -88,8 +83,8 @@ public class FirstCounter extends UntypedActor {
         return count;
     }
 
-    public int vowelCount(final String in) {
-        HashSet<Character> vs = new HashSet<Character>(Arrays.asList('A', 'E', 'I', 'O','U', 'Y'));
+    private int vowelCount(final String in) {
+        HashSet<Character> vs = new HashSet<Character>(Arrays.asList('A', 'E', 'I', 'O', 'U', 'Y'));
         int count = 0;
         for (char c : in.toUpperCase().toCharArray()) {
             if (vs.contains(c)) {
@@ -99,9 +94,13 @@ public class FirstCounter extends UntypedActor {
         return count;
     }
     
-        private String getName(){
-        return getSelf().path().name()+">";
+   private int vowelCounter(final String in) {
+        return vowelCount(in);
     }
 
+
+    private String getName() {
+        return getSelf().path().name() + ">";
+    }
 
 }
