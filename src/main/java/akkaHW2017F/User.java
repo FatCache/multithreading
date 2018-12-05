@@ -35,7 +35,6 @@ public class User extends UntypedActor implements Message {
 
         system = ActorSystem.create("EstimationSystem");
         nStep = new AtomicInteger(0);
-
         sSum = 0;
 
         Props userProps = Props.create(User.class);
