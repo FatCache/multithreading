@@ -27,4 +27,7 @@ public interface Message {
     // Counter => User
     public static final String RETURN_ERROR = "returnError";
     
+    public String getName();
+    
+    
 }

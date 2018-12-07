@@ -52,9 +52,12 @@ public class Estimator extends UntypedActor implements Message {
         }
         
     }
-    
-    private String getName(){
-        return getSelf().path().name()+">";
+
+    @Override
+    public String getName() {
+        return getSelf().path().name() + ">";
     }
+    
+
 
 }

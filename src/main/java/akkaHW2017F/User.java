@@ -64,6 +64,9 @@ public class User extends UntypedActor implements Message {
             } else if (msgList[0].equals(START)) {
                 StringBuilder stringToSend = new StringBuilder();
                 try {
+                    Props Estimator1Prop = Props.create(Estimator.class);
+                    Props Estimator2Prop = Props.create(Estimator.class);
+                    Props CounterProp = Props.create(FirstCounter.class);
                     for (int i = 1; i <= 10; i++) {
                         FileReader fr = new FileReader(System.getProperty("user.dir") + File.separator + "data" + File.separator + "Akka" + i + ".txt");
                         BufferedReader br = new BufferedReader(fr);
@@ -72,9 +75,6 @@ public class User extends UntypedActor implements Message {
                         }
 
                         // Start Count;Estimator 1 & 2 Actor
-                        Props Estimator1Prop = Props.create(Estimator.class);
-                        Props Estimator2Prop = Props.create(Estimator.class);
-                        Props CounterProp = Props.create(FirstCounter.class);
                         ActorRef e1Node = system.actorOf(Estimator1Prop, "Estimator_1_Node_File" + i);
                         ActorRef e2Node = system.actorOf(Estimator2Prop, "Estimator_2_Node_File" + i);
                         ActorRef cunNode = system.actorOf(CounterProp, "Count_Node_File" + i);
@@ -94,8 +94,13 @@ public class User extends UntypedActor implements Message {
         }
     }
 
-    private String getName() {
+    @Override
+    public String getName() {
         return getSelf().path().name() + ">";
     }
+
+
+
+
 
 }

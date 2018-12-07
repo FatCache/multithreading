@@ -98,9 +98,11 @@ public class FirstCounter extends UntypedActor implements Message {
         return vowelCount(in);
     }
 
-
-    private String getName() {
+    @Override
+    public String getName() {
         return getSelf().path().name() + ">";
     }
+
+
 
 }
